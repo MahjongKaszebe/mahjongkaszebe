@@ -14,8 +14,9 @@
             background-color: #FFE600;
             color: #000000;
         }
-        header { margin-bottom: 2rem; border-bottom: 2px solid #000; padding-bottom: 1rem; }
+        header { margin-bottom: 2rem; border-bottom: 2px solid #000; padding-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
         nav a { margin-right: 1rem; color: #000; text-decoration: underline; }
+        .logo { height: 60px; width: auto; }
         article { margin-bottom: 2rem; }
         h1, h2, h3 { color: #000; }
         code { background: #FFD900; padding: 0.2rem 0.4rem; border-radius: 3px; border: 1px solid #000; }
@@ -26,6 +27,7 @@
 </head>
 <body>
     <header>
+        <a href="{{ get_url(path="@/_index.md") }}"><img src="{{ get_url(path="static/logo.jpg") }}" alt="Mahjong Kaszëbë" class="logo"></a>
         <nav>
             <a href="{{ get_url(path="@/_index.md") }}">Strona główna</a>
             <a href="{{ get_url(path="@/blog/_index.md") }}">Aktualności</a>
