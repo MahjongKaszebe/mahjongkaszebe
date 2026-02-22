@@ -168,10 +168,12 @@
             const startDate = new Date(event.start);
             const endDate = event.end ? new Date(event.end) : null;
             
+            const polishDaysShort = ['nie', 'pon', 'wt', 'śr', 'czw', 'pt', 'sob'];
+            
             let dateStr;
             if (endDate && endDate.getTime() !== startDate.getTime()) {
-                const startDay = startDate.toLocaleDateString('pl-PL', { weekday: 'short' });
-                const endDay = endDate.toLocaleDateString('pl-PL', { weekday: 'short' });
+                const startDay = polishDaysShort[startDate.getDay()];
+                const endDay = polishDaysShort[endDate.getDay()];
                 const startDateStr = startDate.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' });
                 const endDateStr = endDate.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' });
                 const year = startDate.getFullYear();
