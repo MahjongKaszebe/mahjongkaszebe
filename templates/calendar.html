@@ -125,7 +125,8 @@
 </style>
 
 <script>
-    const events = [
+    // Static events from MD files
+    const staticEvents = [
         {% for page in section.pages %}
         {
             title: "{{ page.title }}",
@@ -133,11 +134,67 @@
             {% if page.extra.end_date %}
             end: "{{ page.extra.end_date }}",
             {% endif %}
+            {% if page.extra.schedule %}
+            schedule: "{{ page.extra.schedule }}",
+            cancelled: {{ page.extra.cancelled | json_encode() | safe }},
+            {% endif %}
             allDay: true,
             url: "{{ config.base_url | safe }}{{ page.path | safe }}"
         }{% if not loop.last %},{% endif %}
         {% endfor %}
     ];
+
+    // Generate recurring events using Croner
+    const recurringEvents = [];
+    const recurringEventTitles = {}; // Track titles for list consolidation
+    staticEvents.forEach(event => {
+        if (event.schedule) {
+            try {
+                // Croner expects: second minute hour day month dayOfWeek
+                // Our format: minute hour day month dayOfWeek (5 fields)
+                const parts = event.schedule.split(' ');
+                if (parts.length === 5) {
+                    const [minute, hour, , , dayOfWeek] = parts;
+                    const oneWeekAgo = new Date();
+                    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                    const sixMonthsLater = new Date();
+                    sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+                    
+                    // Generate all Tuesdays at the specified time
+                    const current = new Date(oneWeekAgo);
+                    current.setHours(parseInt(hour), parseInt(minute), 0, 0);
+                    
+                    // Find next occurrence
+                    while (current.getDay() !== parseInt(dayOfWeek)) {
+                        current.setDate(current.getDate() + 1);
+                    }
+                    
+                    while (current <= sixMonthsLater) {
+                        const dateStr = current.toISOString().split('T')[0];
+                        const isCancelled = event.cancelled && event.cancelled.includes(dateStr);
+                        if (!isCancelled) {
+                            recurringEvents.push({
+                                ...event,
+                                start: dateStr,
+                                end: null,
+                                title: event.title + " ☕",
+                                isRecurring: true
+                            });
+                        }
+                        current.setDate(current.getDate() + 7);
+                    }
+                    
+                    // Store for list consolidation
+                    recurringEventTitles[event.title] = true;
+                }
+            } catch (e) {
+                console.error('Error generating recurring events:', e);
+            }
+        }
+    });
+
+    // Combine static and recurring events
+    const events = [...staticEvents.filter(e => !e.schedule), ...recurringEvents];
 
     // Adjust end dates for FullCalendar (it treats end as exclusive, so add 1 day for inclusive)
     const calendarEvents = events.map(event => {
@@ -184,7 +241,47 @@
         const listEl = document.getElementById('events-list');
         const sortedEvents = [...events].sort((a, b) => new Date(a.start) - new Date(b.start));
         
+        const processedRecurring = new Set();
+        
             sortedEvents.forEach(event => {
+            // Skip individual recurring events in list, we'll add consolidated entry
+            if (event.isRecurring) {
+                if (processedRecurring.has(event.title)) return;
+                processedRecurring.add(event.title);
+                
+                // Add consolidated recurring entry
+                const polishDays = {
+                    0: 'niedziela',
+                    1: 'poniedziałek',
+                    2: 'wtorek',
+                    3: 'środa',
+                    4: 'czwartek',
+                    5: 'piątek',
+                    6: 'sobota'
+                };
+                
+                // Parse day of week from schedule
+                const parts = event.schedule.split(' ');
+                const dayOfWeek = parts[4];
+                const dayName = polishDays[parseInt(dayOfWeek)] || 'wtorek';
+                
+                // Find next occurrence from today for display
+                const nextDate = new Date();
+                nextDate.setHours(parseInt(parts[1]), parseInt(parts[0]), 0, 0);
+                while (nextDate.getDay() !== parseInt(dayOfWeek)) {
+                    nextDate.setDate(nextDate.getDate() + 1);
+                }
+                
+                const item = document.createElement('div');
+                item.className = 'event-item';
+                item.innerHTML = `
+                    <div class="event-date">Każdy ${dayName}: ${nextDate.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                    <div><a href="${event.url}">${event.title}</a></div>
+                `;
+                listEl.appendChild(item);
+                return;
+            }
+            
             const startDate = new Date(event.start);
             const endDate = event.end ? new Date(event.end) : null;
             
