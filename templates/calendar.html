@@ -29,6 +29,15 @@
         --fc-event-border-color: #000000;
         --fc-event-text-color: #FFE600;
     }
+    .fc-timeGridWeek-view .fc-event,
+    .fc-timeGridWeek-view .fc-event .fc-event-main {
+        background-color: #FFE600 !important;
+        border-color: #000000 !important;
+        color: #000000 !important;
+    }
+    .fc-timeGridWeek-view .fc-event-dot {
+        border-color: #FF0000 !important;
+    }
     .fc-theme-standard td, .fc-theme-standard th {
         border-color: #000 !important;
     }
@@ -113,6 +122,9 @@
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             firstDay: 1,
+            eventBackgroundColor: '#000000',
+            eventBorderColor: '#000000',
+            eventTextColor: '#FFE600',
             events: events,
             eventClick: function(info) {
                 info.jsEvent.preventDefault();
