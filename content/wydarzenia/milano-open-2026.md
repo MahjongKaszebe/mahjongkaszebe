@@ -1,9 +1,10 @@
 +++
 title = "Milano Open 2026"
 date = 2026-03-07
+template = "event.html"
 
 [extra]
-end_date = "2026-03-09"
+end_date = "2026-03-08"
 +++
 
 Mahjong Kaszëbë będzie uczestniczyć w turnieju Milano Open 2026!

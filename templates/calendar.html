@@ -121,6 +121,15 @@
         {% endfor %}
     ];
 
+    // Adjust end dates for FullCalendar (it treats end as exclusive, so add 1 day for inclusive)
+    events.forEach(event => {
+        if (event.end) {
+            const end = new Date(event.end);
+            end.setDate(end.getDate() + 1);
+            event.end = end.toISOString().split('T')[0];
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         const calendarEl = document.getElementById('calendar');
         const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -154,14 +163,14 @@
         const listEl = document.getElementById('events-list');
         const sortedEvents = [...events].sort((a, b) => new Date(a.start) - new Date(b.start));
         
-        sortedEvents.forEach(event => {
+            sortedEvents.forEach(event => {
             const startDate = new Date(event.start);
             const endDate = event.end ? new Date(event.end) : null;
             
             let dateStr;
             if (endDate && endDate.getTime() !== startDate.getTime()) {
-                const endStr = endDate.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' });
-                dateStr = startDate.toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' }) + ' - ' + endStr;
+                const endStr = endDate.toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                dateStr = startDate.toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + ' - ' + endStr;
             } else {
                 dateStr = startDate.toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }
