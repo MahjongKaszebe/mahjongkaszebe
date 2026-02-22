@@ -38,12 +38,9 @@
     .fc .fc-daygrid-day.fc-day-today {
         background-color: rgba(255, 140, 0, 0.2);
     }
-    .fc-event {
-        cursor: pointer;
-        background-color: #000 !important;
-        border-color: #000 !important;
-        color: #FFE600 !important;
-    }
+    .fc-event, 
+    .fc-event *,
+    .fc-event a,
     .fc-event-title,
     .fc-event-title a,
     .fc-event-main,
@@ -51,14 +48,14 @@
     .fc-h-event .fc-event-title-container,
     .fc-h-event .fc-event-title,
     .fc-timegrid-event .fc-event-main,
-    .fc-timegrid-event .fc-event-title {
+    .fc-timegrid-event .fc-event-title,
+    .fc-daygrid-event .fc-event-title,
+    .fc-daygrid-event .fc-event-main {
+        cursor: pointer !important;
+        background-color: #000 !important;
+        border-color: #000 !important;
         color: #FFE600 !important;
-    }
-    .fc-daygrid-event-dot {
-        border-color: #FF0000 !important;
-    }
-    .fc-list-event-dot {
-        border-color: #FF0000 !important;
+        fill: #FFE600 !important;
     }
     .fc-list-event:hover td {
         background-color: #FFE600 !important;
@@ -68,6 +65,10 @@
     }
     .fc-list-event-title a {
         color: #000 !important;
+    }
+    .fc-daygrid-event-dot,
+    .fc-list-event-dot {
+        border-color: #FF0000 !important;
     }
     .fc-button {
         background-color: #000 !important;
