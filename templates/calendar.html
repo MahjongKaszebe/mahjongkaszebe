@@ -24,10 +24,11 @@
         footer { margin-top: 2rem; border-top: 2px solid #000; padding-top: 1rem; }
         
         #calendar {
-            background: white;
+            background: #FFE600;
             padding: 1rem;
             border-radius: 8px;
             margin-bottom: 2rem;
+            border: 2px solid #000;
         }
         .fc-theme-standard td, .fc-theme-standard th {
             border-color: #000;
@@ -44,9 +45,10 @@
             border-color: #000;
         }
         #events-list {
-            background: white;
+            background: #FFE600;
             padding: 1rem;
             border-radius: 8px;
+            border: 2px solid #000;
         }
         .event-item {
             padding: 1rem;
@@ -101,7 +103,7 @@
                 events: events,
                 eventClick: function(info) {
                     if (info.event.url) {
-                        window.location.href = info.event.url;
+                        window.location.href = info.event.url + '/';
                     }
                 },
                 locale: 'pl',
@@ -130,7 +132,7 @@
                 item.className = 'event-item';
                 item.innerHTML = `
                     <div class="event-date">${dateStr}</div>
-                    <div><a href="${event.url}">${event.title}</a></div>
+                    <div><a href="${event.url}/">${event.title}</a></div>
                 `;
                 listEl.appendChild(item);
             });
