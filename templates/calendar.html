@@ -122,12 +122,13 @@
     ];
 
     // Adjust end dates for FullCalendar (it treats end as exclusive, so add 1 day for inclusive)
-    events.forEach(event => {
+    const calendarEvents = events.map(event => {
         if (event.end) {
             const end = new Date(event.end);
             end.setDate(end.getDate() + 1);
-            event.end = end.toISOString().split('T')[0];
+            return { ...event, end: end.toISOString().split('T')[0] };
         }
+        return event;
     });
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -138,7 +139,7 @@
             eventBackgroundColor: '#000000',
             eventBorderColor: '#000000',
             eventTextColor: '#FFE600',
-            events: events,
+            events: calendarEvents,
             eventClick: function(info) {
                 info.jsEvent.preventDefault();
                 if (info.event.url) {
@@ -169,8 +170,11 @@
             
             let dateStr;
             if (endDate && endDate.getTime() !== startDate.getTime()) {
-                const endStr = endDate.toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                dateStr = startDate.toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + ' - ' + endStr;
+                const startDay = startDate.toLocaleDateString('pl-PL', { weekday: 'short' });
+                const endDay = endDate.toLocaleDateString('pl-PL', { weekday: 'short' });
+                const startDateStr = startDate.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' });
+                const year = startDate.getFullYear();
+                dateStr = `${startDay} - ${endDay}, ${startDateStr} ${year}`;
             } else {
                 dateStr = startDate.toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }
