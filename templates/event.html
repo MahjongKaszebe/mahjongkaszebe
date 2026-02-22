@@ -7,9 +7,9 @@
 
 <p style="font-size: 1.2em; color: #FF0000; font-weight: bold;">
     {% if page.extra.end_date %}
-    {{ page.date | date(format="%a") }} - {{ page.extra.end_date | date(format="%a") }}, {{ page.date | date(format="%e") }}-{{ page.extra.end_date | date(format="%e") }} {{ page.date | date(format="%B %Y") }}
+    {{ page.date | date(locale="pl_PL", format="%a") }} - {{ page.extra.end_date | date(locale="pl_PL", format="%a") }}, {{ page.date | date(locale="pl_PL", format="%-d") }}-{{ page.extra.end_date | date(locale="pl_PL", format="%-d") }} {{ page.date | date(locale="pl_PL", format="%B %Y") }}
     {% else %}
-    {{ page.date | date(format="%A, %e %B %Y") }}
+    {{ page.date | date(locale="pl_PL", format="%A, %-d %B %Y") }}
     {% endif %}
 </p>
 
