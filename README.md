@@ -6,6 +6,7 @@ Strona internetowa Trójmiejskiego Klubu Mahjonga.
 
 - [Struktura folderów](#struktura-folderów)
 - [Dodawanie treści](#dodawanie-treści)
+- [Wydarzenia (Kalendarz)](#wydarzenia-kalendarz)
 - [Praca z Zolą](#praca-z-zolą)
 - [Vibe-coding z OpenCode](#vibe-coding-z-opencode)
 - [Wdrażanie](#wdrażanie)
@@ -18,21 +19,26 @@ mahjongkaszebe/
 ├── content/             # Treści strony (pliki Markdown)
 │   ├── _index.md       # Strona główna
 │   ├── kontakt.md      # Strona kontaktowa
-│   └── blog/           # Sekcja aktualności
-│       ├── _index.md   # Lista postów
-│       └── *.md        # Posty (np. moj-post.md)
+│   ├── blog/           # Sekcja aktualności
+│   │   ├── _index.md   # Lista postów
+│   │   └── *.md        # Posty (np. moj-post.md)
+│   └── wydarzenia/     # Sekcja wydarzeń (kalendarz)
+│       ├── _index.md   # Kalendarz (używa FullCalendar)
+│       └── *.md        # Wydarzenia
 ├── templates/           # Szablony HTML
 │   ├── base.html       # Główny szablon (nagłówek, stopka, CSS)
 │   ├── index.html      # Szablon strony głównej
 │   ├── section.html    # Szablon dla sekcji (blog)
-│   └── page.html       # Szablon dla pojedynczych stron
+│   ├── page.html       # Szablon dla pojedynczych stron
+│   ├── calendar.html   # Szablon kalendarza (FullCalendar)
+│   └── event.html      # Szablon strony wydarzenia
 ├── static/             # Pliki statyczne (obrazy, CSS, JS)
-│   ├── logo.jpg        # Logo klubu
-│   └── *.jpg           # Zdjęcia do postów
+│   ├── logo.jpg       # Logo klubu
+│   └── *.jpg          # Zdjęcia do postów
 ├── .github/
-│   └── workflows/      # GitHub Actions
-│       └── main.yml    # Automatyczne wdrażanie
-└── public/             # Zbudowana strona (nie commitować!)
+│   └── workflows/     # GitHub Actions
+│       └── main.yml   # Automatyczne wdrażanie
+└── public/            # Zbudowana strona (nie commitować!)
 ```
 
 ## Dodawanie treści
@@ -68,6 +74,43 @@ Treść wpisu w Markdown.
 
 1. Wrzuć zdjęcie do `static/`
 2. W treści użyj `![Opis](/nazwa-zdjęcia.jpg)`
+
+## Wydarzenia (Kalendarz)
+
+### Dodawanie wydarzenia
+
+Utwórz plik w `content/wydarzenia/`:
+
+```markdown
++++
+title = "Nazwa wydarzenia"
+date = 2026-03-07
+template = "event.html"
+
+[extra]
+end_date = "2026-03-08"
++++
+
+Treść wydarzenia.
+```
+
+**Ważne:**
+- Używaj `date` dla daty początkowej
+- Używaj `end_date` w sekcji `[extra]` dla daty końcowej (włączającą - np. 8 marca dla wydarzenia 7-8 marca)
+- Daty w MD są w formacie ISO (YYYY-MM-DD)
+- Szablon automatycznie dodaje +1 dzień dla FullCalendar (bo traktuje end jako wyłączną)
+
+### Format daty
+
+- W MD: `date = 2026-03-07` (bez cudzysłowów dla TOML)
+- W `[extra]`: `end_date = "2026-03-08"` (z cudzysłowami)
+- Na stronie wydarzenia: `sob - nie, 7-8 marca 2026`
+- W liście wydarzeń: automatycznie używa polskiego locale
+
+### Szablony
+
+- `calendar.html` - strona kalendarza z FullCalendar + listą
+- `event.html` - strona pojedynczego wydarzenia
 
 ## Praca z Zolą
 
