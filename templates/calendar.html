@@ -205,8 +205,14 @@
                     }
                     
                     while (current <= sixMonthsLater) {
-                        const dateStr = current.toISOString().slice(0, 16);
-                        const isCancelled = event.cancelled && event.cancelled.includes(dateStr.split('T')[0]);
+                        const year = current.getFullYear();
+                        const month = String(current.getMonth() + 1).padStart(2, '0');
+                        const day = String(current.getDate()).padStart(2, '0');
+                        const hour = String(current.getHours()).padStart(2, '0');
+                        const minute = String(current.getMinutes()).padStart(2, '0');
+                        const dateStr = `${year}-${month}-${day}T${hour}:${minute}`;
+                        const dateOnly = `${year}-${month}-${day}`;
+                        const isCancelled = event.cancelled && event.cancelled.includes(dateOnly);
                         if (!isCancelled) {
                             recurringEvents.push({
                                 ...event,
