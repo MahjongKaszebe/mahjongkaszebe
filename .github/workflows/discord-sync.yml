@@ -22,8 +22,7 @@ jobs:
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | sed '$d')
           echo "HTTP Code: $HTTP_CODE"
-          echo "Response: $BODY" > messages.json
-          cat messages.json
+          echo "$BODY" > messages.json
 
       - name: Process messages
         run: |
@@ -36,8 +35,7 @@ jobs:
           with open('messages.json', 'r') as f:
               content = f.read()
               print(f"File length: {len(content)}")
-              print(f"File content: {content[:200]}")
-              messages = json.load(f)
+              messages = json.loads(content)
 
           processed_file = 'processed_messages.txt'
           if os.path.exists(processed_file):
