@@ -15,13 +15,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Debug secrets
-        run: |
-          echo "Token present: ${{ secrets.DISCORD_BOT_TOKEN != '' }}"
-          echo "Channel present: ${{ secrets.DISCORD_CHANNEL_ID != '' }}"
-          echo "Token: ${{ secrets.DISCORD_BOT_TOKEN }}"
-          echo "Channel: ${{ secrets.DISCORD_CHANNEL_ID }}"
-
       - name: Fetch Discord messages
         run: |
           RESPONSE=$(curl -s -w "\n%{http_code}" -H "Authorization: Bot ${{ secrets.DISCORD_BOT_TOKEN }}" \
