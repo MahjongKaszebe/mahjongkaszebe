@@ -45,6 +45,7 @@ jobs:
               processed = set()
 
           new_processed = []
+          titles = []
           changes_made = False
 
           for msg in messages:
@@ -128,6 +129,7 @@ jobs:
                   f.write(file_content)
               
               print(f'Created: {filename}')
+              titles.append(title)
               new_processed.append(msg_id)
               changes_made = True
 
@@ -137,6 +139,9 @@ jobs:
 
           if changes_made:
               print('changed=true')
+              with open('new_events.txt', 'w') as f:
+                  for t in titles:
+                      f.write(t + '\n')
           else:
               print('No new events')
           PYEOF
@@ -149,3 +154,14 @@ jobs:
           git add -A
           git commit -m "Sync events from Discord" || true
           git push || true
+
+      - name: Notify Discord
+        if: success()
+        run: |
+          if [ -f new_events.txt ]; then
+            TITLES=$(cat new_events.txt)
+            curl -s -X POST "https://discord.com/api/v10/channels/${{ secrets.DISCORD_CHANNEL_ID }}/messages" \
+              -H "Authorization: Bot ${{ secrets.DISCORD_BOT_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d "{\"content\": \"✅ Dodano: $TITLES\"}"
+          fi
