@@ -10,6 +10,7 @@ Strona internetowa Trójmiejskiego Klubu Mahjonga.
 - [Praca z Zolą](#praca-z-zolą)
 - [Vibe-coding z OpenCode](#vibe-coding-z-opencode)
 - [Wdrażanie](#wdrażanie)
+- [Discord Sync](#discord-sync)
 
 ## Struktura folderów
 
@@ -219,6 +220,57 @@ Strona używa kolorów:
 - Aktywny element menu: czerwony (`#FF0000`)
 
 Edytuj `templates/base.html` aby zmienić style CSS.
+
+## Discord Sync
+
+Strona może być aktualizowana przez Discord! Członkowie zarządu mogą dodawać wydarzenia i posty przez bota.
+
+### Konfiguracja Discorda
+
+1. **Utwórz bota Discord:**
+   - Idź do https://discord.com/developers/applications
+   - Nowa aplikacja → Bot → Add Bot
+   - Włącz "Message Content Intent" w ustawieniach bota
+
+2. **Pobierz token bota:**
+   - Skopiuj token (sekret)
+
+3. **Zaproś bota na serwer:**
+   - OAuth2 → URL Generator
+   - Uprawnienia: `Read Messages`, `Send Messages`
+   - Użyj wygenerowanego URL do zaproszenia
+
+4. **Pobierz ID kanału:**
+   - Włącz Developer Mode w Discord
+   - Prawy klik na kanał → Copy ID
+
+5. **Dodaj sekrety do GitHub:**
+   - Idź do repozytorium → Settings → Secrets and variables → Actions
+   - Dodaj `DISCORD_BOT_TOKEN` = token bota
+   - Dodaj `DISCORD_CHANNEL_ID` = ID kanału
+
+### Użycie
+
+Napisz wiadomość na kanale Discord:
+
+```
+!event
+title: Turniej w Gdańsku
+date: 2026-03-15
+end_date: 2026-03-16
+
+Zapraszamy na otwarty turniej w Gdańsku!
+---
+Serdecznie zapraszamy!
+```
+
+**Dostępne pola:**
+- `title:` - tytuł wydarzenia
+- `date:` - data początkowa (YYYY-MM-DD)
+- `end_date:` - data końcowa (włączającą)
+- `section: blog` - opcjonalnie, dla posta na blog
+
+Bot synchronizuje co 5 minut (GitHub Actions).
 
 ---
 
