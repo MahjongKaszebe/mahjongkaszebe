@@ -142,10 +142,10 @@ jobs:
           PYEOF
                     python3 process.py
 
-                - name: Commit changes
-                  run: |
-                    git config --local user.email "bot@github.com"
-                    git config --local user.name "Discord Bot"
-                    git add -A
-                    git commit -m "Sync events from Discord" || true
-                    git push || true
+      - name: Commit changes
+        run: |
+          git config --local user.email "bot@github.com"
+          git config --local user.name "Discord Bot"
+          git add -A
+          git commit -m "Sync events from Discord" || true
+          git push || true
