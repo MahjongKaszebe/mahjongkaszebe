@@ -1,4 +1,4 @@
-name: Discord to GitHub Sync
+name: Discord Sync
 
 on:
   schedule:
