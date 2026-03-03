@@ -134,7 +134,7 @@ jobs:
               changes_made = True
 
           with open(processed_file, 'w') as f:
-              for msg_id in processed.union(set(new_processed)):
+              for msg_id in sorted(processed.union(set(new_processed))):
                   f.write(f'{msg_id}\n')
 
           if changes_made:
@@ -152,8 +152,12 @@ jobs:
           git config --local user.email "bot@github.com"
           git config --local user.name "Discord Bot"
           git add -A
-          git commit -m "Sync events from Discord" || true
-          git push || true
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Sync events from Discord"
+            git push
+          fi
 
       - name: Notify Discord
         if: success()
