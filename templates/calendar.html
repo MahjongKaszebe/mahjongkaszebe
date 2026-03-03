@@ -21,10 +21,63 @@
     }
     .fc {
         --fc-border-color: #000 !important;
-        --fc-today-bg-color: rgba(255, 140, 0, 0.2);
+        --fc-today-bg-color: rgba(255, 0, 0, 0.2);
         --fc-page-bg-color: #FFE600;
         --fc-neutral-bg-color: #FFE600;
         --fc-list-event-hover-bg-color: #FFE600;
+        --fc-event-background-color: #000000;
+        --fc-event-border-color: #000000;
+        --fc-event-text-color: #FFE600;
+    }
+    .fc-event:hover {
+        background-color: #8B0000 !important;
+    }
+    .fc-event:hover .fc-event-main {
+        background-color: #8B0000 !important;
+    }
+    .fc-event:hover .fc-event-time {
+        background-color: #8B0000 !important;
+    }
+    .fc-event:hover .fc-event-title {
+        background-color: #8B0000 !important;
+    }
+    .fc-event {
+        background-color: #000 !important;
+        border-color: #000 !important;
+        color: #FFE600 !important;
+        font-weight: normal !important;
+    }
+    .fc-event .fc-event-main {
+        background-color: #000 !important;
+        color: #FFE600 !important;
+        font-weight: normal !important;
+    }
+    .fc-event-title {
+        font-weight: normal !important;
+    }
+    .fc-event-time {
+        color: #FFE600 !important;
+        background-color: #000 !important;
+        padding: 0 2px;
+        font-weight: normal !important;
+    }
+    .fc-daygrid-month-view .fc-daygrid-event-dot {
+        display: none !important;
+    }
+    .fc-timegrid-view .fc-event-dot {
+        border-color: #FF0000 !important;
+    }
+    .fc-timegrid-view .fc-event,
+    .fc-timegrid-view .fc-event-title,
+    .fc-timegrid-view .fc-event-title a,
+    .fc-timeGridWeek-view .fc-event,
+    .fc-timeGridWeek-view .fc-event .fc-event-main {
+        background-color: #FFE600 !important;
+        border-color: #000000 !important;
+        color: #000000 !important;
+    }
+    .fc-timegrid-view .fc-event-dot {
+        border-color: #FF0000 !important;
     }
     .fc-theme-standard td, .fc-theme-standard th {
         border-color: #000 !important;
@@ -36,35 +89,27 @@
         color: #000;
     }
     .fc .fc-daygrid-day.fc-day-today {
-        background-color: rgba(255, 140, 0, 0.2);
+        background-color: rgba(255, 0, 0, 0.2);
     }
-    .fc-event, 
-    .fc-event *,
-    .fc-event a,
-    .fc-event-title,
-    .fc-event-title a,
-    .fc-event-main,
-    .fc-event-main a,
-    .fc-h-event .fc-event-title-container,
-    .fc-h-event .fc-event-title,
-    .fc-timegrid-event .fc-event-main,
-    .fc-timegrid-event .fc-event-title,
-    .fc-daygrid-event .fc-event-title,
-    .fc-daygrid-event .fc-event-main {
-        cursor: pointer !important;
+    .fc-list-event {
         background-color: #000 !important;
-        border-color: #000 !important;
-        color: #FFE600 !important;
-        fill: #FFE600 !important;
+        border-color: #FFE600 !important;
     }
-    .fc-list-event:hover td {
-        background-color: #FFE600 !important;
+    .fc-list-event td {
+        background-color: #000 !important;
+        border-color: #FFE600 !important;
+    }
+    .fc-list-event-title a {
+        color: #FFE600 !important;
+    }
+    .fc-list-event-time {
+        color: #FFE600 !important;
     }
     .fc-list-day-cushion {
         background-color: #FFE600 !important;
     }
-    .fc-list-event-title a {
-        color: #000 !important;
+    .fc-list-event:hover td {
+        background-color: #8B0000 !important;
     }
     .fc-daygrid-event-dot,
     .fc-list-event-dot {
@@ -76,10 +121,20 @@
         color: #FFE600 !important;
     }
     .fc-button:hover {
-        background-color: #333 !important;
+        background-color: #8B0000 !important;
+        border-color: #8B0000 !important;
+    }
+    .fc-button:focus,
+    .fc-button:active {
+        background-color: #FF0000 !important;
+        border-color: #FF0000 !important;
+        box-shadow: none !important;
     }
     .fc-button-active {
-        background-color: #FF8C00 !important;
+        background-color: #FF0000 !important;
+    }
+    .fc-button-active:hover {
+        background-color: #CC0000 !important;
     }
     .fc-toolbar-title {
         color: #000 !important;
@@ -99,18 +154,24 @@
     }
     .event-date {
         font-weight: bold;
-        color: #FF8C00;
+        color: #FF0000;
     }
 </style>
 
+<script src="/recurring-events.js"></script>
 <script>
-    const events = [
+    // Static events from MD files
+    const staticEvents = [
         {% for page in section.pages %}
         {
             title: "{{ page.title }}",
             start: "{{ page.date }}",
-            {% if page.end_date %}
-            end: "{{ page.end_date }}",
+            {% if page.extra.end_date %}
+            end: "{{ page.extra.end_date }}",
+            {% endif %}
+            {% if page.extra.schedule %}
+            schedule: "{{ page.extra.schedule }}",
+            cancelled: {{ page.extra.cancelled | json_encode() | safe }},
             {% endif %}
             allDay: true,
             url: "{{ config.base_url | safe }}{{ page.path | safe }}"
@@ -118,11 +179,43 @@
         {% endfor %}
     ];
 
+    // Generate recurring events
+    const recurringEvents = [];
+    const recurringEventTitles = {};
+    staticEvents.forEach(event => {
+        if (event.schedule) {
+            try {
+                const events = generateRecurringEvents(event);
+                recurringEvents.push(...events);
+                recurringEventTitles[event.title] = true;
+            } catch (e) {
+                console.error('Error generating recurring events:', e);
+            }
+        }
+    });
+
+    // Combine static and recurring events
+    const events = [...staticEvents.filter(e => !e.schedule), ...recurringEvents];
+
+    // Adjust end dates for FullCalendar (it treats end as exclusive, so add 1 day for inclusive)
+    const calendarEvents = events.map(event => {
+        if (event.end) {
+            const end = new Date(event.end);
+            end.setDate(end.getDate() + 1);
+            return { ...event, end: end.toISOString().split('T')[0] };
+        }
+        return event;
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         const calendarEl = document.getElementById('calendar');
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
-            events: events,
+            firstDay: 1,
+            eventBackgroundColor: '#000000',
+            eventBorderColor: '#000000',
+            eventTextColor: '#FFE600',
+            events: calendarEvents,
             eventClick: function(info) {
                 info.jsEvent.preventDefault();
                 if (info.event.url) {
@@ -130,11 +223,13 @@
                 }
             },
             locale: 'pl',
+            allDayText: 'Cały dzień',
             buttonText: {
                 today: 'Dzisiaj',
                 month: 'Miesiąc',
                 week: 'Tydzień',
-                day: 'Dzień'
+                day: 'Dzień',
+                list: 'Tydzień'
             },
             headerToolbar: {
                 left: 'prev,next today',
@@ -147,14 +242,32 @@
         const listEl = document.getElementById('events-list');
         const sortedEvents = [...events].sort((a, b) => new Date(a.start) - new Date(b.start));
         
-        sortedEvents.forEach(event => {
+        const processedRecurring = new Set();
+        
+            sortedEvents.forEach(event => {
+            // Skip individual recurring events in list, we'll add consolidated entry
+            if (event.isRecurring) {
+                if (processedRecurring.has(event.title)) return;
+                processedRecurring.add(event.title);
+                
+                const dateStr = formatRecurringDate(event.schedule);
+                
+                const item = document.createElement('div');
+                item.className = 'event-item';
+                item.innerHTML = `
+                    <div class="event-date">${dateStr}</div>
+                    <div><a href="${event.url}">${event.title}</a></div>
+                `;
+                listEl.appendChild(item);
+                return;
+            }
+            
             const startDate = new Date(event.start);
             const endDate = event.end ? new Date(event.end) : null;
             
             let dateStr;
             if (endDate && endDate.getTime() !== startDate.getTime()) {
-                const endStr = endDate.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' });
-                dateStr = startDate.toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' }) + ' - ' + endStr;
+                dateStr = formatDateRange(event.start, event.end);
             } else {
                 dateStr = startDate.toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }

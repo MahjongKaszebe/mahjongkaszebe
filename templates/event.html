@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} - {{ config.title }}{% endblock %}
+
+{% block content %}
+<h1>{{ page.title }}</h1>
+
+<p id="event-date" style="font-size: 1.2em; color: #FF0000; font-weight: bold;" 
+   data-schedule="{{ page.extra.schedule | default(value='') }}"
+   data-start-date="{{ page.date }}"
+   data-end-date="{{ page.extra.end_date | default(value='') }}">
+    {{ page.date | date(locale="pl_PL", format="%A, %-d %B %Y") }}
+</p>
+
+{{ page.content | safe }}
+
+<script src="/recurring-events.js"></script>
+<script>
+    const dateEl = document.getElementById('event-date');
+    const schedule = dateEl.getAttribute('data-schedule');
+    const startDate = dateEl.getAttribute('data-start-date');
+    const endDate = dateEl.getAttribute('data-end-date');
+    
+    if (schedule) {
+        dateEl.textContent = formatRecurringDate(schedule);
+    } else if (endDate && startDate !== endDate) {
+        dateEl.textContent = formatDateRange(startDate, endDate);
+    }
+</script>
+{% endblock %}

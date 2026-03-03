@@ -6,9 +6,11 @@ Strona internetowa Trójmiejskiego Klubu Mahjonga.
 
 - [Struktura folderów](#struktura-folderów)
 - [Dodawanie treści](#dodawanie-treści)
+- [Wydarzenia (Kalendarz)](#wydarzenia-kalendarz)
 - [Praca z Zolą](#praca-z-zolą)
 - [Vibe-coding z OpenCode](#vibe-coding-z-opencode)
 - [Wdrażanie](#wdrażanie)
+- [Discord Sync](#discord-sync)
 
 ## Struktura folderów
 
@@ -18,21 +20,26 @@ mahjongkaszebe/
 ├── content/             # Treści strony (pliki Markdown)
 │   ├── _index.md       # Strona główna
 │   ├── kontakt.md      # Strona kontaktowa
-│   └── blog/           # Sekcja aktualności
-│       ├── _index.md   # Lista postów
-│       └── *.md        # Posty (np. moj-post.md)
+│   ├── blog/           # Sekcja aktualności
+│   │   ├── _index.md   # Lista postów
+│   │   └── *.md        # Posty (np. moj-post.md)
+│   └── wydarzenia/     # Sekcja wydarzeń (kalendarz)
+│       ├── _index.md   # Kalendarz (używa FullCalendar)
+│       └── *.md        # Wydarzenia
 ├── templates/           # Szablony HTML
 │   ├── base.html       # Główny szablon (nagłówek, stopka, CSS)
 │   ├── index.html      # Szablon strony głównej
 │   ├── section.html    # Szablon dla sekcji (blog)
-│   └── page.html       # Szablon dla pojedynczych stron
+│   ├── page.html       # Szablon dla pojedynczych stron
+│   ├── calendar.html   # Szablon kalendarza (FullCalendar)
+│   └── event.html      # Szablon strony wydarzenia
 ├── static/             # Pliki statyczne (obrazy, CSS, JS)
-│   ├── logo.jpg        # Logo klubu
-│   └── *.jpg           # Zdjęcia do postów
+│   ├── logo.jpg       # Logo klubu
+│   └── *.jpg          # Zdjęcia do postów
 ├── .github/
-│   └── workflows/      # GitHub Actions
-│       └── main.yml    # Automatyczne wdrażanie
-└── public/             # Zbudowana strona (nie commitować!)
+│   └── workflows/     # GitHub Actions
+│       └── main.yml   # Automatyczne wdrażanie
+└── public/            # Zbudowana strona (nie commitować!)
 ```
 
 ## Dodawanie treści
@@ -68,6 +75,43 @@ Treść wpisu w Markdown.
 
 1. Wrzuć zdjęcie do `static/`
 2. W treści użyj `![Opis](/nazwa-zdjęcia.jpg)`
+
+## Wydarzenia (Kalendarz)
+
+### Dodawanie wydarzenia
+
+Utwórz plik w `content/wydarzenia/`:
+
+```markdown
++++
+title = "Nazwa wydarzenia"
+date = 2026-03-07
+template = "event.html"
+
+[extra]
+end_date = "2026-03-08"
++++
+
+Treść wydarzenia.
+```
+
+**Ważne:**
+- Używaj `date` dla daty początkowej
+- Używaj `end_date` w sekcji `[extra]` dla daty końcowej (włączającą - np. 8 marca dla wydarzenia 7-8 marca)
+- Daty w MD są w formacie ISO (YYYY-MM-DD)
+- Szablon automatycznie dodaje +1 dzień dla FullCalendar (bo traktuje end jako wyłączną)
+
+### Format daty
+
+- W MD: `date = 2026-03-07` (bez cudzysłowów dla TOML)
+- W `[extra]`: `end_date = "2026-03-08"` (z cudzysłowami)
+- Na stronie wydarzenia: `sob - nie, 7-8 marca 2026`
+- W liście wydarzeń: automatycznie używa polskiego locale
+
+### Szablony
+
+- `calendar.html` - strona kalendarza z FullCalendar + listą
+- `event.html` - strona pojedynczego wydarzenia
 
 ## Praca z Zolą
 
@@ -173,9 +217,60 @@ Strona używa kolorów:
 - Tło: żółty (`#FFE600`)
 - Tekst: czarny (`#000000`)
 - Menu: czarne z żółtym tekstem
-- Aktywny element menu: pomarańczowy (`#FF8C00`)
+- Aktywny element menu: czerwony (`#FF0000`)
 
 Edytuj `templates/base.html` aby zmienić style CSS.
+
+## Discord Sync
+
+Strona może być aktualizowana przez Discord! Członkowie zarządu mogą dodawać wydarzenia i posty przez bota.
+
+### Konfiguracja Discorda
+
+1. **Utwórz bota Discord:**
+   - Idź do https://discord.com/developers/applications
+   - Nowa aplikacja → Bot → Add Bot
+   - Włącz "Message Content Intent" w ustawieniach bota
+
+2. **Pobierz token bota:**
+   - Skopiuj token (sekret)
+
+3. **Zaproś bota na serwer:**
+   - OAuth2 → URL Generator
+   - Uprawnienia: `Read Messages`, `Send Messages`
+   - Użyj wygenerowanego URL do zaproszenia
+
+4. **Pobierz ID kanału:**
+   - Włącz Developer Mode w Discord
+   - Prawy klik na kanał → Copy ID
+
+5. **Dodaj sekrety do GitHub:**
+   - Idź do repozytorium → Settings → Secrets and variables → Actions
+   - Dodaj `DISCORD_BOT_TOKEN` = token bota
+   - Dodaj `DISCORD_CHANNEL_ID` = ID kanału
+
+### Użycie
+
+Napisz wiadomość na kanale Discord:
+
+```
+!event
+title: Turniej w Gdańsku
+date: 2026-03-15
+end_date: 2026-03-16
+
+Zapraszamy na otwarty turniej w Gdańsku!
+---
+Serdecznie zapraszamy!
+```
+
+**Dostępne pola:**
+- `title:` - tytuł wydarzenia
+- `date:` - data początkowa (YYYY-MM-DD)
+- `end_date:` - data końcowa (włączającą)
+- `section: blog` - opcjonalnie, dla posta na blog
+
+Bot synchronizuje co 5 minut (GitHub Actions).
 
 ---
 
